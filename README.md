@@ -1,84 +1,90 @@
 # Dziennik podróży
 
-Aplikacja internetowa do zapisywania studenckich podróży — wycieczek, wyjazdów i weekendów. Użytkownik dodaje podróże, wpisy z dziennika, wydatki i tagi, a aplikacja pokazuje podsumowania (koszty, ranking krajów, statystyki wpisów).
+Aplikacja internetowa do zapisywania podróży — wycieczek, wyjazdów i weekendów. Dodajesz podróże, wpisy z dziennika i wydatki, a aplikacja pokazuje podsumowania: ile wydałaś, które kraje odwiedziłaś najczęściej, średnie oceny miejsc itd.
 
-**Technologie:** ASP.NET Core MVC, Entity Framework Core, SQLite, sesja (logowanie), REST API (autentykacja login + token API).
+**Stack:** ASP.NET Core MVC, Entity Framework, SQLite, logowanie przez sesję, REST API (login + token).
 
-**Autorzy:** *(uzupełnij imiona i nazwiska)*
-
----
-
-## Do czego służy aplikacja
-
-- Zapisywanie podróży powiązanych z krajem (daty, opis).
-- Prowadzenie dziennika — wpisy z datą, treścią i oceną miejsca (1–5).
-- Ewidencja wydatków w podróży (kwota, kategoria, data).
-- Tagowanie wpisów (np. plaża, muzeum, jedzenie).
-- Raporty: suma wydatków, średnie oceny, ranking krajów, podróże wg dat.
-
-Dostęp do widoków tylko po zalogowaniu. Administrator (konto z seeda przy pierwszym uruchomieniu) dodaje użytkowników i przegląda listę kont.
+**Autorzy:** *(wpisz imiona)*
 
 ---
 
-## Baza danych — tabele
+## Do czego to służy
 
-### Tabele logowania (nie wliczają się do wymaganego minimum 4 tabel projektu)
+- **Podróże** — zapisujesz gdzie byłaś, kiedy (data od–do), krótki opis, przypisany kraj.
+- **Dziennik** — wpisy z datą, tytułem, treścią i oceną miejsca od 1 do 5.
+- **Wydatki** — kwota, co to było, data, kategoria (jedzenie, transport, nocleg…).
+- **Raporty** — nie tylko listy tabel: suma wydatków, ranking krajów, podróże wg dat, statystyki wpisów.
 
-| Tabela | Zawartość |
-|--------|-----------|
-| **Users** | Login, hash hasła, rola (User / Admin), unikalny **ApiToken** do REST API |
+Żeby cokolwiek zobaczyć, trzeba się **zalogować**. Przy pierwszym uruchomieniu powstaje konto **admina** — tylko on może dodawać nowych użytkowników i przeglądać listę kont w systemie.
 
-### Tabele domenowe (projekt)
+---
 
-| Tabela | Zawartość |
-|--------|-----------|
-| **Countries** | Nazwa kraju, opcjonalnie kod (np. PL, IT) |
-| **Trips** | Tytuł podróży, data od / do, opis; powiązanie z **Country** i właścicielem (**User**) |
-| **JournalEntries** | Wpis dziennika: data, tytuł, treść, ocena 1–5; należy do jednej **Trip** |
-| **Expenses** | Wydatek: kwota, opis, data, kategoria (np. jedzenie, transport, nocleg); należy do **Trip** |
-| **Tags** | Nazwa tagu (unikalna), np. `plaża`, `muzeum` |
-| **EntryTags** | Powiązanie wiele-do-wiele: który **JournalEntry** ma który **Tag** |
+## Baza danych — co jest w tabelach
 
-### Relacje
+### Users (logowanie — nie liczy się do tych 4 tabel od prowadzącego)
+
+| Pole / sens | Co tam jest |
+|-------------|-------------|
+| Login | Nazwa do logowania |
+| Hasło | Hash (nie plain text) |
+| Rola | `Admin` albo zwykły `User` |
+| ApiToken | Klucz do REST API — każdy user ma swój |
+
+### Tabele projektu (4 sztuki — to jest minimum z zadania)
+
+| Tabela | Co przechowuje |
+|--------|----------------|
+| **Countries** | Kraje — nazwa, opcjonalnie kod kraju (np. PL, IT) |
+| **Trips** | Podróże — tytuł, data od, data do, opis; do którego **kraju** i którego **usera** należy |
+| **JournalEntries** | Wpisy dziennika — data, tytuł, treść, ocena 1–5; należy do jednej **Trip** |
+| **Expenses** | Wydatki — kwota, opis, data, kategoria; należy do jednej **Trip** |
+
+### Jak to się łączy
 
 ```
 User 1 ── * Trip * ── 1 Country
                  │
-                 ├── 1 ── * JournalEntry * ── * EntryTag * ── 1 Tag
+                 ├── 1 ── * JournalEntry
                  │
                  └── 1 ── * Expense
 ```
 
-Przy **pierwszym uruchomieniu** aplikacja tworzy bazę, konto administratora oraz przykładowe kraje, podróże, wpisy i wydatki.
+Jeden user ma wiele podróży. Jedna podróż ma jeden kraj, wiele wpisów i wiele wydatków.
+
+Przy **pierwszym starcie** aplikacja sama zakłada bazę, admina i trochę przykładowych danych (kraje, podróż, wpisy, wydatki) — żeby od razu coś było widać.
 
 ---
 
-## Funkcjonalność (plan)
+## Widoki „extra” (nie zwykła tabela)
 
-| Obszar | Opis |
-|--------|------|
-| MVC | CRUD dla krajów, podróży, wpisów, wydatków, tagów; menu nawigacyjne |
-| Sesja | Logowanie / wylogowanie; ochrona widoków |
-| Admin | Dodawanie użytkowników, lista kont |
-| Raporty | Podsumowania kosztów, ranking krajów, statystyki wpisów |
-| REST API | GET/POST/PUT/DELETE z nagłówkami lub parametrami login + ApiToken |
-| Konsola | Program(y) demonstrujące wywołania API |
+| Widok | Po co |
+|-------|--------|
+| **Dashboard** | Statystyki: ile podróży, suma wydatków, średnia ocena, ostatnie wpisy |
+| **Ranking krajów** | Który kraj ile razy, ile wydatków, jaka średnia ocena |
+| **Raport wydatków** | Wybierasz podróż → podział na kategorie (jedzenie / transport / …) |
+| **Podróże wg dat** | Nadchodzące, trwające, zakończone |
+
+Reszta to normalny CRUD: kraje, podróże, wpisy, wydatki — wszystko z menu, bez wpisywania URL ręcznie.
+
+---
+
+## REST API + konsola
+
+To samo co w aplikacji webowej, ale przez API — z loginem i **ApiToken** w żądaniu. Osobny mały program konsolowy pokaże, że działa (np. lista podróży, dodanie wpisu).
 
 ---
 
 ## Uruchomienie
-
-*(uzupełnisz po utworzeniu projektu ASP.NET)*
 
 ```bash
 cd lab10-12
 dotnet run
 ```
 
-Domyślne konto administratora (seed): *(login / hasło — uzupełnij w kodzie lub tutaj po implementacji)*
+Konto admina po seedzie: **admin** / **123** (oraz test / haslo)
 
 ---
 
-## Dokumentacja projektu
+## Dokumentacja na zaliczenie
 
-Pełny opis funkcji i sposobu użycia: ten plik + *(opcjonalnie strona /Docs w aplikacji)*.
+Ten README = opis projektu: tytuł, autorzy, do czego służy, tabele, funkcje. Można też dorzucić stronę `/Docs` w samej aplikacji.

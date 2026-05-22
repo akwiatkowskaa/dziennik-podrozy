@@ -1,0 +1,18 @@
+@model Country
+@{
+    ViewData["Title"] = "Edycja kraju";
+}
+<h2>Edytuj kraj</h2>
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-2">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Code"></label>
+        <input asp-for="Code" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Zapisz</button>
+    <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
+</form>

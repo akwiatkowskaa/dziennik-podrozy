@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Dziennik podróży</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm border-bottom bg-light mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">Dziennik podróży</a>
+                <div class="navbar-nav">
+                    @if (Context.Session.GetString("User") != null)
+                    {
+                        <a class="nav-link" asp-controller="Home" asp-action="Index">Start</a>
+                        <a class="nav-link" asp-controller="Countries" asp-action="Index">Kraje</a>
+                        <a class="nav-link" asp-controller="Trips" asp-action="Index">Podróże</a>
+                        <a class="nav-link" asp-controller="JournalEntries" asp-action="Index">Wpisy</a>
+                        <a class="nav-link" asp-controller="Expenses" asp-action="Index">Wydatki</a>
+                        <a class="nav-link" asp-controller="Auth" asp-action="Wyloguj">Wyloguj (@Context.Session.GetString("User"))</a>
+                    }
+                    else
+                    {
+                        <a class="nav-link" asp-controller="Auth" asp-action="Logowanie">Logowanie</a>
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

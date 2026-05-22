@@ -1,0 +1,14 @@
+@model Country
+@{
+    ViewData["Title"] = "Usuń kraj";
+}
+<h2>Usunąć kraj?</h2>
+<dl>
+    <dt>Nazwa</dt><dd>@Model.Name</dd>
+    <dt>Kod</dt><dd>@Model.Code</dd>
+</dl>
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Usuń</button>
+    <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
+</form>

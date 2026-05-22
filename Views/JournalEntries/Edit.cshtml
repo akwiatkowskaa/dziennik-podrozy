@@ -1,0 +1,30 @@
+@model JournalEntry
+@{
+    ViewData["Title"] = "Edycja wpisu";
+}
+<h2>Edytuj wpis</h2>
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-2">
+        <label asp-for="TripId">Podróż</label>
+        <select asp-for="TripId" asp-items="ViewBag.TripId" class="form-select"></select>
+    </div>
+    <div class="mb-2">
+        <label asp-for="EntryDate"></label>
+        <input asp-for="EntryDate" type="date" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label asp-for="Content"></label>
+        <textarea asp-for="Content" class="form-control" rows="4"></textarea>
+    </div>
+    <div class="mb-2">
+        <label asp-for="Rating"></label>
+        <input asp-for="Rating" type="number" min="1" max="5" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Zapisz</button>
+    <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
+</form>

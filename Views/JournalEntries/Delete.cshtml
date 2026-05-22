@@ -1,0 +1,14 @@
+@model JournalEntry
+@{
+    ViewData["Title"] = "Usuń wpis";
+}
+<h2>Usunąć wpis?</h2>
+<dl>
+    <dt>Tytuł</dt><dd>@Model.Title</dd>
+    <dt>Podróż</dt><dd>@Model.Trip?.Title</dd>
+</dl>
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Usuń</button>
+    <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
+</form>

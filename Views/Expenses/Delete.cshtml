@@ -1,0 +1,14 @@
+@model Expense
+@{
+    ViewData["Title"] = "Usuń wydatek";
+}
+<h2>Usunąć wydatek?</h2>
+<dl>
+    <dt>Kwota</dt><dd>@Model.Amount zł</dd>
+    <dt>Podróż</dt><dd>@Model.Trip?.Title</dd>
+</dl>
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Usuń</button>
+    <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
+</form>

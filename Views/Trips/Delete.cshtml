@@ -1,0 +1,14 @@
+@model Trip
+@{
+    ViewData["Title"] = "Usuń podróż";
+}
+<h2>Usunąć podróż?</h2>
+<dl>
+    <dt>Tytuł</dt><dd>@Model.Title</dd>
+    <dt>Kraj</dt><dd>@Model.Country?.Name</dd>
+</dl>
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Usuń</button>
+    <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
+</form>

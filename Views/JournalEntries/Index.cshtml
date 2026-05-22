@@ -1,0 +1,28 @@
+@model IEnumerable<JournalEntry>
+@{
+    ViewData["Title"] = "Wpisy dziennika";
+}
+<h2>Wpisy dziennika</h2>
+<p><a asp-action="Create" class="btn btn-primary btn-sm">Dodaj wpis</a></p>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Data</th><th>Tytuł</th><th>Ocena</th><th>Podróż</th><th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.EntryDate.ToString("yyyy-MM-dd")</td>
+            <td>@item.Title</td>
+            <td>@item.Rating / 5</td>
+            <td>@item.Trip?.Title</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edytuj</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Usuń</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
