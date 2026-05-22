@@ -1,10 +1,9 @@
 # Dziennik podróży
 
-Aplikacja internetowa do zapisywania podróży — wycieczek, wyjazdów i weekendów. Dodajesz podróże, wpisy z dziennika i wydatki, a aplikacja pokazuje podsumowania: ile wydałaś, które kraje odwiedziłaś najczęściej, średnie oceny miejsc itd.
+Aplikacja internetowa do zapisywania podróży — wycieczek, wyjazdów. Dodajesz podróże, wpisy z dziennika i wydatki, a aplikacja pokazuje podsumowania: ile wydałaś, które kraje odwiedziłaś najczęściej, średnie oceny miejsc itd.
 
 **Stack:** ASP.NET Core MVC, Entity Framework, SQLite, logowanie przez sesję, REST API (login + token).
 
-**Autorzy:** *(wpisz imiona)*
 
 ---
 
@@ -21,16 +20,16 @@ Aplikacja internetowa do zapisywania podróży — wycieczek, wyjazdów i weeken
 
 ## Baza danych — co jest w tabelach
 
-### Users (logowanie — nie liczy się do tych 4 tabel od prowadzącego)
+### Users
 
 | Pole / sens | Co tam jest |
 |-------------|-------------|
 | Login | Nazwa do logowania |
-| Hasło | Hash (nie plain text) |
+| Hasło | Hash |
 | Rola | `Admin` albo zwykły `User` |
 | ApiToken | Klucz do REST API — każdy user ma swój |
 
-### Tabele projektu (4 sztuki — to jest minimum z zadania)
+### Tabele projektu
 
 | Tabela | Co przechowuje |
 |--------|----------------|
@@ -61,16 +60,9 @@ Przy **pierwszym starcie** aplikacja sama zakłada bazę, admina i trochę przyk
 |-------|--------|
 | **Dashboard** | Statystyki: ile podróży, suma wydatków, średnia ocena, ostatnie wpisy |
 | **Ranking krajów** | Który kraj ile razy, ile wydatków, jaka średnia ocena |
-| **Raport wydatków** | Wybierasz podróż → podział na kategorie (jedzenie / transport / …) |
 | **Podróże wg dat** | Nadchodzące, trwające, zakończone |
 
 Reszta to normalny CRUD: kraje, podróże, wpisy, wydatki — wszystko z menu, bez wpisywania URL ręcznie.
-
----
-
-## REST API + konsola
-
-To samo co w aplikacji webowej, ale przez API — z loginem i **ApiToken** w żądaniu. Osobny mały program konsolowy pokaże, że działa (np. lista podróży, dodanie wpisu).
 
 ---
 
@@ -84,7 +76,3 @@ dotnet run
 Konto admina po seedzie: **admin** / **123** (oraz test / haslo)
 
 ---
-
-## Dokumentacja na zaliczenie
-
-Ten README = opis projektu: tytuł, autorzy, do czego służy, tabele, funkcje. Można też dorzucić stronę `/Docs` w samej aplikacji.
