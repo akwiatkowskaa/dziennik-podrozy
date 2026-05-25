@@ -1,78 +1,69 @@
 # Dziennik podróży
 
-Aplikacja internetowa do zapisywania podróży — wycieczek, wyjazdów. Dodajesz podróże, wpisy z dziennika i wydatki, a aplikacja pokazuje podsumowania: ile wydałaś, które kraje odwiedziłaś najczęściej, średnie oceny miejsc itd.
+Aplikacja internetowa do zapisywania podróży — wycieczek, wyjazdów. Dodajesz podróże, wpisy z dziennika i wydatki; aplikacja pokazuje podsumowania i raporty.
 
-**Stack:** ASP.NET Core MVC, Entity Framework, SQLite, logowanie przez sesję, REST API (login + token).
+**Autorzy:** *Alicja Kwiatkowska*
 
-
----
-
-## Do czego to służy
-
-- **Podróże** — zapisujesz gdzie byłaś, kiedy (data od–do), krótki opis, przypisany kraj.
-- **Dziennik** — wpisy z datą, tytułem, treścią i oceną miejsca od 1 do 5.
-- **Wydatki** — kwota, co to było, data, kategoria (jedzenie, transport, nocleg…).
-- **Raporty** — nie tylko listy tabel: suma wydatków, ranking krajów, podróże wg dat, statystyki wpisów.
-
-Żeby cokolwiek zobaczyć, trzeba się **zalogować**. Przy pierwszym uruchomieniu powstaje konto **admina** — tylko on może dodawać nowych użytkowników i przeglądać listę kont w systemie.
+**Stack:** ASP.NET Core MVC, Entity Framework Core, SQLite, sesja (WWW), REST API (login + ApiToken), program konsolowy `ApiClient`.
 
 ---
 
-## Baza danych — co jest w tabelach
-
-### Users
-
-| Pole / sens | Co tam jest |
-|-------------|-------------|
-| Login | Nazwa do logowania |
-| Hasło | Hash |
-| Rola | `Admin` albo zwykły `User` |
-| ApiToken | Klucz do REST API — każdy user ma swój |
-
-### Tabele projektu
-
-| Tabela | Co przechowuje |
-|--------|----------------|
-| **Countries** | Kraje — nazwa, opcjonalnie kod kraju (np. PL, IT) |
-| **Trips** | Podróże — tytuł, data od, data do, opis; do którego **kraju** i którego **usera** należy |
-| **JournalEntries** | Wpisy dziennika — data, tytuł, treść, ocena 1–5; należy do jednej **Trip** |
-| **Expenses** | Wydatki — kwota, opis, data, kategoria; należy do jednej **Trip** |
-
-### Jak to się łączy
-
-```
-User 1 ── * Trip * ── 1 Country
-                 │
-                 ├── 1 ── * JournalEntry
-                 │
-                 └── 1 ── * Expense
-```
-
-Jeden user ma wiele podróży. Jedna podróż ma jeden kraj, wiele wpisów i wiele wydatków.
-
-Przy **pierwszym starcie** aplikacja sama zakłada bazę, admina i trochę przykładowych danych (kraje, podróż, wpisy, wydatki) — żeby od razu coś było widać.
-
----
-
-## Widoki „extra” (nie zwykła tabela)
-
-| Widok | Po co |
-|-------|--------|
-| **Dashboard** | Statystyki: ile podróży, suma wydatków, średnia ocena, ostatnie wpisy |
-| **Ranking krajów** | Który kraj ile razy, ile wydatków, jaka średnia ocena |
-| **Podróże wg dat** | Nadchodzące, trwające, zakończone |
-
-Reszta to normalny CRUD: kraje, podróże, wpisy, wydatki — wszystko z menu, bez wpisywania URL ręcznie.
-
----
-
-## Uruchomienie
+## Uruchomienie (WWW)
 
 ```bash
-cd lab10-12
 dotnet run
 ```
 
-Konto admina po seedzie: **admin** / **123** (oraz test / haslo)
+Adres: `http://localhost:5297` 
+
+| Konto | Hasło | Rola |
+|-------|-------|------|
+| admin | 123 | Admin |
+| test | haslo | User |
+
+Token REST: po zalogowaniu jako **admin** → menu **Użytkownicy** → kolumna „Token API”.
 
 ---
+
+## REST API (demo konsola)
+
+W drugim terminalu (aplikacja WWW musi działać):
+
+```bash
+cd ApiClient
+dotnet run -- http://localhost:5297 admin WKLEJ_TOKEN
+```
+
+Program wykonuje: GET kraje, GET podróże, POST wpis dziennika, GET wpisy.
+
+### Endpointy
+
+| Zasób | URL |
+|-------|-----|
+| Kraje | `/api/countries` |
+| Podróże | `/api/trips` |
+| Wpisy | `/api/journalentries` |
+| Wydatki | `/api/expenses` |
+
+Metody: **GET, POST, PUT, DELETE**.
+
+---
+
+## Baza danych
+
+**Users** (logowanie — poza limitem 4 tabel): login, hash hasła, rola, ApiToken.
+
+**4 tabele projektu:** Countries, Trips, JournalEntries, Expenses.
+
+Relacje: User → Trips → Country; Trip → JournalEntries, Expenses.
+
+Seed przy pierwszym uruchomieniu: admin, test, kraje, przykładowa podróż.
+
+---
+
+## Funkcje w aplikacji
+
+- CRUD przez WWW: kraje, podróże, wpisy, wydatki
+- Logowanie sesją, hash hasła (MD5)
+- Admin: lista użytkowników, dodawanie kont
+- Raporty: ranking krajów, wydatki wg kategorii, podróże wg dat

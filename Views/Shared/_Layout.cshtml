@@ -12,7 +12,7 @@
         <nav class="navbar navbar-expand-sm border-bottom bg-light mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index">Dziennik podróży</a>
-                <div class="navbar-nav">
+                <div class="navbar-nav flex-wrap">
                     @if (Context.Session.GetString("User") != null)
                     {
                         <a class="nav-link" asp-controller="Home" asp-action="Index">Start</a>
@@ -20,6 +20,16 @@
                         <a class="nav-link" asp-controller="Trips" asp-action="Index">Podróże</a>
                         <a class="nav-link" asp-controller="JournalEntries" asp-action="Index">Wpisy</a>
                         <a class="nav-link" asp-controller="Expenses" asp-action="Index">Wydatki</a>
+                        <span class="nav-link text-muted">|</span>
+                        <a class="nav-link" asp-controller="Reports" asp-action="RankingKrajow">Ranking</a>
+                        <a class="nav-link" asp-controller="Reports" asp-action="RaportWydatkow">Wydatki raport</a>
+                        <a class="nav-link" asp-controller="Reports" asp-action="PodrozeWgDat">Kalendarz</a>
+                        @if (string.Equals(Context.Session.GetString("Role"), "Admin", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <span class="nav-link text-muted">|</span>
+                            <a class="nav-link fw-bold" asp-controller="Admin" asp-action="Users">Użytkownicy</a>
+                        }
+                        <span class="nav-link text-muted">|</span>
                         <a class="nav-link" asp-controller="Auth" asp-action="Wyloguj">Wyloguj (@Context.Session.GetString("User"))</a>
                     }
                     else

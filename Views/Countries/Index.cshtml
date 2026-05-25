@@ -1,20 +1,30 @@
-@model IEnumerable<Country>
+@model IEnumerable<DziennikPodrozy.Controllers.CountryListRow>
 @{
     ViewData["Title"] = "Kraje";
 }
-<h2>Kraje</h2>
+<h2>Kraje (słownik)</h2>
+<p class="text-muted">@ViewBag.Hint</p>
 <p><a asp-action="Create" class="btn btn-primary btn-sm">Dodaj kraj</a></p>
 <table class="table table-striped">
     <thead>
-        <tr><th>Id</th><th>Nazwa</th><th>Kod</th><th></th></tr>
+        <tr><th>Nazwa</th><th>Kod</th><th>Twoje podróże do tego kraju</th><th></th></tr>
     </thead>
     <tbody>
     @foreach (var item in Model)
     {
-        <tr>
-            <td>@item.Id</td>
+        <tr class="@(item.MyTripCount == 0 ? "table-secondary" : "")">
             <td>@item.Name</td>
             <td>@item.Code</td>
+            <td>
+                @if (item.MyTripCount == 0)
+                {
+                    <span class="text-muted">0 — nie byłaś / brak podróży</span>
+                }
+                else
+                {
+                    <strong>@item.MyTripCount</strong>
+                }
+            </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edytuj</a> |
                 <a asp-action="Delete" asp-route-id="@item.Id">Usuń</a>

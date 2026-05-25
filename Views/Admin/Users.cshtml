@@ -1,0 +1,26 @@
+@model IEnumerable<UserAccount>
+@{
+    ViewData["Title"] = "Użytkownicy";
+}
+<h2>Użytkownicy systemu</h2>
+<p class="text-muted">Tylko administrator może przeglądać konta i dodawać nowych.</p>
+<p><a asp-action="CreateUser" class="btn btn-primary btn-sm">Dodaj użytkownika</a></p>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Login</th>
+            <th>Rola</th>
+            <th>Token API (REST)</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var u in Model)
+    {
+        <tr>
+            <td>@u.Login</td>
+            <td>@u.Role</td>
+            <td><code class="small">@u.ApiToken</code></td>
+        </tr>
+    }
+    </tbody>
+</table>

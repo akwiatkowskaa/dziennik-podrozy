@@ -1,0 +1,60 @@
+@model DziennikPodrozy.Models.ViewModels.TripsByDateViewModel
+@{
+    ViewData["Title"] = "Podróże wg dat";
+}
+<h2>Podróże wg dat</h2>
+<p class="text-muted">@ViewBag.ScopeLabel · dziś: @DateTime.Today.ToString("dd.MM.yyyy")</p>
+
+<h4 class="mt-4">Nadchodzące</h4>
+@if (Model.Upcoming.Count == 0)
+{
+    <p class="text-muted">Brak zaplanowanych podróży.</p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var t in Model.Upcoming)
+        {
+            <li class="list-group-item">
+                <strong>@t.Title</strong> — @t.CountryName<br />
+                <small>@t.DateFrom.ToString("dd.MM.yyyy") – @t.DateTo.ToString("dd.MM.yyyy")</small>
+            </li>
+        }
+    </ul>
+}
+
+<h4 class="mt-4">Trwające dziś</h4>
+@if (Model.Ongoing.Count == 0)
+{
+    <p class="text-muted">Żadna podróż nie trwa dziś.</p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var t in Model.Ongoing)
+        {
+            <li class="list-group-item">
+                <strong>@t.Title</strong> — @t.CountryName<br />
+                <small>@t.DateFrom.ToString("dd.MM.yyyy") – @t.DateTo.ToString("dd.MM.yyyy")</small>
+            </li>
+        }
+    </ul>
+}
+
+<h4 class="mt-4">Zakończone</h4>
+@if (Model.Finished.Count == 0)
+{
+    <p class="text-muted">Brak zakończonych podróży.</p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var t in Model.Finished)
+        {
+            <li class="list-group-item">
+                <strong>@t.Title</strong> — @t.CountryName<br />
+                <small>@t.DateFrom.ToString("dd.MM.yyyy") – @t.DateTo.ToString("dd.MM.yyyy")</small>
+            </li>
+        }
+    </ul>
+}

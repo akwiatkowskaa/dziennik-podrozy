@@ -1,6 +1,7 @@
 using DziennikPodrozy.Data;
 using DziennikPodrozy.Filters;
 using DziennikPodrozy.Models;
+using DziennikPodrozy.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,7 @@ public class ExpensesController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var expenses = await _db.Expenses
+        var expenses = await UserScope.ExpensesFor(_db, HttpContext.Session)
             .Include(e => e.Trip)
             .OrderByDescending(e => e.ExpenseDate)
             .ToListAsync();
@@ -25,18 +26,19 @@ public class ExpensesController : Controller
 
     public async Task<IActionResult> Create()
     {
-        ViewBag.TripId = new SelectList(
-            await _db.Trips.OrderByDescending(t => t.DateFrom).ToListAsync(), "Id", "Title");
-        return View();
+        await FillTripList();
+        return View(new Expense { ExpenseDate = DateTime.Today });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Expense expense)
     {
+        if (!await CanUseTrip(expense.TripId))
+            ModelState.AddModelError(nameof(expense.TripId), "Wybierz jedną ze swoich podróży.");
         if (!ModelState.IsValid)
         {
-            ViewBag.TripId = new SelectList(await _db.Trips.ToListAsync(), "Id", "Title", expense.TripId);
+            await FillTripList(expense.TripId);
             return View(expense);
         }
         _db.Expenses.Add(expense);
@@ -46,9 +48,10 @@ public class ExpensesController : Controller
 
     public async Task<IActionResult> Edit(int? id)
     {
-        var expense = await _db.Expenses.FindAsync(id);
+        var expense = await UserScope.ExpensesFor(_db, HttpContext.Session)
+            .FirstOrDefaultAsync(e => e.Id == id);
         if (expense == null) return NotFound();
-        ViewBag.TripId = new SelectList(await _db.Trips.ToListAsync(), "Id", "Title", expense.TripId);
+        await FillTripList(expense.TripId);
         return View(expense);
     }
 
@@ -57,9 +60,11 @@ public class ExpensesController : Controller
     public async Task<IActionResult> Edit(int id, Expense expense)
     {
         if (id != expense.Id) return NotFound();
+        if (!await CanUseTrip(expense.TripId))
+            ModelState.AddModelError(nameof(expense.TripId), "Wybierz jedną ze swoich podróży.");
         if (!ModelState.IsValid)
         {
-            ViewBag.TripId = new SelectList(await _db.Trips.ToListAsync(), "Id", "Title", expense.TripId);
+            await FillTripList(expense.TripId);
             return View(expense);
         }
         _db.Update(expense);
@@ -69,7 +74,7 @@ public class ExpensesController : Controller
 
     public async Task<IActionResult> Delete(int? id)
     {
-        var expense = await _db.Expenses
+        var expense = await UserScope.ExpensesFor(_db, HttpContext.Session)
             .Include(e => e.Trip)
             .FirstOrDefaultAsync(e => e.Id == id);
         if (expense == null) return NotFound();
@@ -80,7 +85,8 @@ public class ExpensesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var expense = await _db.Expenses.FindAsync(id);
+        var expense = await UserScope.ExpensesFor(_db, HttpContext.Session)
+            .FirstOrDefaultAsync(e => e.Id == id);
         if (expense != null)
         {
             _db.Expenses.Remove(expense);
@@ -88,4 +94,15 @@ public class ExpensesController : Controller
         }
         return RedirectToAction(nameof(Index));
     }
+
+    private async Task FillTripList(int? selected = null)
+    {
+        var trips = await UserScope.TripsFor(_db, HttpContext.Session)
+            .OrderByDescending(t => t.DateFrom)
+            .ToListAsync();
+        ViewBag.TripId = new SelectList(trips, "Id", "Title", selected);
+    }
+
+    private async Task<bool> CanUseTrip(int tripId) =>
+        await UserScope.TripsFor(_db, HttpContext.Session).AnyAsync(t => t.Id == tripId);
 }

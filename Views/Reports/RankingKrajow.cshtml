@@ -1,0 +1,38 @@
+@model IEnumerable<DziennikPodrozy.Models.ViewModels.CountryRankingRow>
+@{
+    ViewData["Title"] = "Ranking krajów";
+}
+<h2>Ranking krajów</h2>
+<p class="text-muted">@ViewBag.ScopeLabel</p>
+<p class="small">Tylko kraje, do których masz co najmniej jedną podróż. Ocena = średnia z wpisów dziennika w tych podróżach.</p>
+
+@if (!Model.Any())
+{
+    <p class="alert alert-warning">Brak podróży — najpierw dodaj podróż w menu „Podróże”.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Kraj</th>
+                <th>Liczba podróży</th>
+                <th>Suma wydatków</th>
+                <th>Śr. ocena miejsc</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td>@r.CountryName @(r.CountryCode != null ? $"({r.CountryCode})" : "")</td>
+                <td>@r.TripCount</td>
+                <td>@r.ExpenseSum.ToString("0.00") zł</td>
+                <td>
+                    @(r.AvgPlaceRating.HasValue ? $"{r.AvgPlaceRating.Value:0.0} / 5" : "—")
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

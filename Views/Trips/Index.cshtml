@@ -1,29 +1,52 @@
 @model IEnumerable<Trip>
 @{
     ViewData["Title"] = "Podróże";
+    var isAdmin = ViewBag.IsAdmin as bool? == true;
 }
-<h2>Podróże</h2>
-<p><a asp-action="Create" class="btn btn-primary btn-sm">Dodaj podróż</a></p>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Tytuł</th><th>Kraj</th><th>Od</th><th>Do</th><th>Użytkownik</th><th></th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>@item.Title</td>
-            <td>@item.Country?.Name</td>
-            <td>@item.DateFrom.ToString("yyyy-MM-dd")</td>
-            <td>@item.DateTo.ToString("yyyy-MM-dd")</td>
-            <td>@item.User?.Login</td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edytuj</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Usuń</a>
-            </td>
-        </tr>
-    }
-    </tbody>
-</table>
+<div class="page-header">
+    <h2>Podróże</h2>
+    <a asp-action="Create" class="btn btn-primary">+ Dodaj podróż</a>
+</div>
+
+@if (!isAdmin)
+{
+    <p class="text-muted">Widzisz tylko swoje podróże.</p>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Nie masz jeszcze żadnej podróży. Kliknij <strong>Dodaj podróż</strong>.</div>
+}
+else
+{
+    <div class="table-responsive card shadow-sm">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Tytuł</th>
+                    <th>Kraj</th>
+                    <th>Od</th>
+                    <th>Do</th>
+                    @if (isAdmin) { <th>Użytkownik</th> }
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td><strong>@item.Title</strong></td>
+                    <td>@item.Country?.Name</td>
+                    <td>@item.DateFrom.ToString("dd.MM.yyyy")</td>
+                    <td>@item.DateTo.ToString("dd.MM.yyyy")</td>
+                    @if (isAdmin) { <td>@item.User?.Login</td> }
+                    <td class="text-nowrap">
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edytuj</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Usuń</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

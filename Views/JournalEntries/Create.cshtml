@@ -3,25 +3,25 @@
     ViewData["Title"] = "Nowy wpis";
 }
 <h2>Dodaj wpis</h2>
-<form asp-action="Create" method="post">
+<form asp-controller="JournalEntries" asp-action="Create" method="post">
     <div class="mb-2">
-        <label asp-for="TripId">Podróż</label>
+        <label class="form-label">Podróż</label>
         <select asp-for="TripId" asp-items="ViewBag.TripId" class="form-select"></select>
     </div>
     <div class="mb-2">
-        <label asp-for="EntryDate"></label>
+        <label class="form-label">Data</label>
         <input asp-for="EntryDate" type="date" class="form-control" />
     </div>
     <div class="mb-2">
-        <label asp-for="Title"></label>
+        <label class="form-label">Tytuł</label>
         <input asp-for="Title" class="form-control" />
     </div>
     <div class="mb-2">
-        <label asp-for="Content"></label>
+        <label class="form-label">Opis <span class="text-muted">(opcjonalnie)</span></label>
         <textarea asp-for="Content" class="form-control" rows="4"></textarea>
     </div>
     <div class="mb-2">
-        <label asp-for="Rating">Ocena (1-5)</label>
+        <label class="form-label">Ocena miejsca (1–5)</label>
         <input asp-for="Rating" type="number" min="1" max="5" class="form-control" />
     </div>
     <button type="submit" class="btn btn-primary">Zapisz</button>

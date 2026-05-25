@@ -3,25 +3,25 @@
     ViewData["Title"] = "Nowy wydatek";
 }
 <h2>Dodaj wydatek</h2>
-<form asp-action="Create" method="post">
+<form asp-controller="Expenses" asp-action="Create" method="post">
     <div class="mb-2">
-        <label asp-for="TripId">Podróż</label>
+        <label class="form-label">Podróż</label>
         <select asp-for="TripId" asp-items="ViewBag.TripId" class="form-select"></select>
     </div>
     <div class="mb-2">
-        <label asp-for="ExpenseDate"></label>
+        <label class="form-label">Data</label>
         <input asp-for="ExpenseDate" type="date" class="form-control" />
     </div>
     <div class="mb-2">
-        <label asp-for="Amount"></label>
+        <label class="form-label">Kwota (zł)</label>
         <input asp-for="Amount" class="form-control" step="0.01" />
     </div>
     <div class="mb-2">
-        <label asp-for="Category"></label>
+        <label class="form-label">Kategoria</label>
         <input asp-for="Category" class="form-control" placeholder="jedzenie, transport, nocleg..." />
     </div>
     <div class="mb-2">
-        <label asp-for="Description"></label>
+        <label class="form-label">Opis <span class="text-muted">(opcjonalnie)</span></label>
         <input asp-for="Description" class="form-control" />
     </div>
     <button type="submit" class="btn btn-primary">Zapisz</button>

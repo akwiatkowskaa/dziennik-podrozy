@@ -1,41 +1,110 @@
-﻿@{
+﻿@model DziennikPodrozy.Models.ViewModels.DashboardViewModel
+@{
     ViewData["Title"] = "Start";
 }
-<h2>Witaj, @Context.Session.GetString("User")!</h2>
-<p class="text-muted">Krótkie podsumowanie danych w bazie (później tu będzie pełny dashboard).</p>
+<h2>Witaj, @Model.Login!</h2>
+<p class="text-muted">@Model.ScopeLabel</p>
 
-<div class="row mt-4">
+<div class="alert alert-light border small mb-4">
+    <strong>Co znaczą liczby:</strong>
+    <ul class="mb-0">
+        <li><strong>Odwiedzone kraje</strong> — tyle różnych krajów masz w swoich podróżach</li>
+        <li><strong>Ocena miejsca</strong> — średnia z wpisów dziennika w skali 1–5</li>
+        <li><strong>Wydatki</strong> — suma kwot z Twoich podróży</li>
+    </ul>
+</div>
+
+<div class="row g-3">
     <div class="col-md-3">
-        <div class="card"><div class="card-body">
-            <h5>Podróże</h5>
-            <p class="display-6">@ViewBag.TripCount</p>
-        </div></div>
+        <div class="card h-100 border-primary">
+            <div class="card-body">
+                <h6 class="text-muted">Twoje podróże</h6>
+                <p class="display-6 mb-0">@Model.TripCount</p>
+            </div>
+        </div>
     </div>
     <div class="col-md-3">
-        <div class="card"><div class="card-body">
-            <h5>Kraje</h5>
-            <p class="display-6">@ViewBag.CountryCount</p>
-        </div></div>
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="text-muted">Odwiedzone kraje</h6>
+                <p class="display-6 mb-0">@Model.VisitedCountryCount</p>
+            </div>
+        </div>
     </div>
     <div class="col-md-3">
-        <div class="card"><div class="card-body">
-            <h5>Wpisy</h5>
-            <p class="display-6">@ViewBag.EntryCount</p>
-        </div></div>
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="text-muted">Wpisy w dzienniku</h6>
+                <p class="display-6 mb-0">@Model.EntryCount</p>
+            </div>
+        </div>
     </div>
     <div class="col-md-3">
-        <div class="card"><div class="card-body">
-            <h5>Suma wydatków</h5>
-            <p class="display-6">@(((decimal)ViewBag.ExpenseSum).ToString("0.00")) zł</p>
-        </div></div>
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="text-muted">Twoje wydatki łącznie</h6>
+                <p class="display-6 mb-0">@Model.ExpenseSum.ToString("0.00") zł</p>
+            </div>
+        </div>
     </div>
 </div>
-<p class="mt-3">Średnia ocena wpisów: <strong>@(((double)ViewBag.AvgRating).ToString("0.0"))</strong> / 5</p>
 
-<h4 class="mt-4">Przejdź do tabel</h4>
+<p class="mt-3">
+    Średnia ocena miejsc w dzienniku:
+    @if (Model.AvgPlaceRating.HasValue)
+    {
+        <strong>@Model.AvgPlaceRating.Value.ToString("0.0")</strong><text> / 5</text>
+    }
+    else
+    {
+        <span class="text-muted">brak wpisów — dodaj wpis z oceną 1–5</span>
+    }
+</p>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <h5>Ostatnie podróże</h5>
+        @if (Model.RecentTrips.Count == 0)
+        {
+            <p class="text-muted">Nie masz jeszcze podróży. <a asp-controller="Trips" asp-action="Create">Dodaj pierwszą</a>.</p>
+        }
+        else
+        {
+            <ul class="list-group">
+                @foreach (var t in Model.RecentTrips)
+                {
+                    <li class="list-group-item">
+                        <strong>@t.Title</strong> — @t.CountryName<br />
+                        <small class="text-muted">@t.DateFrom.ToString("dd.MM.yyyy") – @t.DateTo.ToString("dd.MM.yyyy")</small>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+    <div class="col-md-6">
+        <h5>Ostatnie wpisy</h5>
+        @if (Model.RecentEntries.Count == 0)
+        {
+            <p class="text-muted">Brak wpisów w dzienniku.</p>
+        }
+        else
+        {
+            <ul class="list-group">
+                @foreach (var e in Model.RecentEntries)
+                {
+                    <li class="list-group-item">
+                        <strong>@e.Title</strong> (podróż: @e.TripTitle)<br />
+                        <small>@e.EntryDate.ToString("dd.MM.yyyy") — ocena miejsca: @e.Rating/5</small>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</div>
+
+<h5 class="mt-4">Raporty</h5>
 <ul>
-    <li><a asp-controller="Countries" asp-action="Index">Kraje</a></li>
-    <li><a asp-controller="Trips" asp-action="Index">Podróże</a></li>
-    <li><a asp-controller="JournalEntries" asp-action="Index">Wpisy dziennika</a></li>
-    <li><a asp-controller="Expenses" asp-action="Index">Wydatki</a></li>
+    <li><a asp-controller="Reports" asp-action="RankingKrajow">Ranking krajów</a></li>
+    <li><a asp-controller="Reports" asp-action="RaportWydatkow">Raport wydatków (wg podróży)</a></li>
+    <li><a asp-controller="Reports" asp-action="PodrozeWgDat">Podróże wg dat</a></li>
 </ul>

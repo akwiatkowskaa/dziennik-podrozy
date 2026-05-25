@@ -90,6 +90,17 @@ public static class DbInitializer
                 Category = "nocleg"
             });
 
+        var tripTest = new Trip
+        {
+            Title = "Lato nad morzem",
+            DateFrom = new DateTime(2026, 7, 1),
+            DateTo = new DateTime(2026, 7, 14),
+            Description = "Planowany wyjazd",
+            CountryId = pl.Id,
+            UserId = user.Id
+        };
+        db.Trips.Add(tripTest);
+
         db.SaveChanges();
     }
 }

@@ -1,6 +1,7 @@
 using DziennikPodrozy.Data;
 using DziennikPodrozy.Filters;
 using DziennikPodrozy.Models;
+using DziennikPodrozy.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,7 @@ public class JournalEntriesController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var entries = await _db.JournalEntries
+        var entries = await UserScope.EntriesFor(_db, HttpContext.Session)
             .Include(e => e.Trip)
             .OrderByDescending(e => e.EntryDate)
             .ToListAsync();
@@ -25,19 +26,21 @@ public class JournalEntriesController : Controller
 
     public async Task<IActionResult> Create()
     {
-        ViewBag.TripId = new SelectList(
-            await _db.Trips.OrderByDescending(t => t.DateFrom).ToListAsync(), "Id", "Title");
-        return View();
+        await FillTripList();
+        return View(new JournalEntry { EntryDate = DateTime.Today, Rating = 3 });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(JournalEntry entry)
     {
+        if (!await CanUseTrip(entry.TripId))
+        {
+            ModelState.AddModelError(nameof(entry.TripId), "Wybierz jedną ze swoich podróży.");
+        }
         if (!ModelState.IsValid)
         {
-            ViewBag.TripId = new SelectList(
-                await _db.Trips.ToListAsync(), "Id", "Title", entry.TripId);
+            await FillTripList(entry.TripId);
             return View(entry);
         }
         _db.JournalEntries.Add(entry);
@@ -47,9 +50,10 @@ public class JournalEntriesController : Controller
 
     public async Task<IActionResult> Edit(int? id)
     {
-        var entry = await _db.JournalEntries.FindAsync(id);
+        var entry = await UserScope.EntriesFor(_db, HttpContext.Session)
+            .FirstOrDefaultAsync(e => e.Id == id);
         if (entry == null) return NotFound();
-        ViewBag.TripId = new SelectList(await _db.Trips.ToListAsync(), "Id", "Title", entry.TripId);
+        await FillTripList(entry.TripId);
         return View(entry);
     }
 
@@ -58,9 +62,11 @@ public class JournalEntriesController : Controller
     public async Task<IActionResult> Edit(int id, JournalEntry entry)
     {
         if (id != entry.Id) return NotFound();
+        if (!await CanUseTrip(entry.TripId))
+            ModelState.AddModelError(nameof(entry.TripId), "Wybierz jedną ze swoich podróży.");
         if (!ModelState.IsValid)
         {
-            ViewBag.TripId = new SelectList(await _db.Trips.ToListAsync(), "Id", "Title", entry.TripId);
+            await FillTripList(entry.TripId);
             return View(entry);
         }
         _db.Update(entry);
@@ -70,7 +76,7 @@ public class JournalEntriesController : Controller
 
     public async Task<IActionResult> Delete(int? id)
     {
-        var entry = await _db.JournalEntries
+        var entry = await UserScope.EntriesFor(_db, HttpContext.Session)
             .Include(e => e.Trip)
             .FirstOrDefaultAsync(e => e.Id == id);
         if (entry == null) return NotFound();
@@ -81,7 +87,8 @@ public class JournalEntriesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var entry = await _db.JournalEntries.FindAsync(id);
+        var entry = await UserScope.EntriesFor(_db, HttpContext.Session)
+            .FirstOrDefaultAsync(e => e.Id == id);
         if (entry != null)
         {
             _db.JournalEntries.Remove(entry);
@@ -89,4 +96,15 @@ public class JournalEntriesController : Controller
         }
         return RedirectToAction(nameof(Index));
     }
+
+    private async Task FillTripList(int? selected = null)
+    {
+        var trips = await UserScope.TripsFor(_db, HttpContext.Session)
+            .OrderByDescending(t => t.DateFrom)
+            .ToListAsync();
+        ViewBag.TripId = new SelectList(trips, "Id", "Title", selected);
+    }
+
+    private async Task<bool> CanUseTrip(int tripId) =>
+        await UserScope.TripsFor(_db, HttpContext.Session).AnyAsync(t => t.Id == tripId);
 }
